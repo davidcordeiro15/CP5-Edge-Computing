@@ -42,7 +42,6 @@ void initSerial() {
     Serial.begin(115200);
 }
 
-//Conenctanto ao wifi
 void initWiFi() {
     delay(10);
     Serial.println("------Conexao WI-FI------");
@@ -52,7 +51,6 @@ void initWiFi() {
     reconectWiFi();
 }
 
-//Conectando ao MQTT
 void initMQTT() {
     MQTT.setServer(BROKER_MQTT, BROKER_PORT);
     MQTT.setCallback(mqtt_callback);
@@ -91,7 +89,7 @@ void reconectWiFi() {
     // Garantir que o LED inicie desligado
     digitalWrite(D4, LOW);
 }
-//Liga ou desliga o led de acordo com o tópico recebido
+
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     String msg;
     for (int i = 0; i < length; i++) {
@@ -123,7 +121,6 @@ void VerificaConexoesWiFIEMQTT() {
     reconectWiFi();
 }
 
-//Envia dados para o MQTT sobre os led's
 void EnviaEstadoOutputMQTT() {
     if (EstadoSaida == '1') {
         MQTT.publish(TOPICO_PUBLISH_1, "s|on");
@@ -166,17 +163,15 @@ void reconnectMQTT() {
     }
 }
 
-
 void handleLuminosity() {
   const int potPin = 34;
   char msgBuffer[4];
-  //Enviando a luminosidade
   int sensorValue = analogRead(potPin);
-  int luminosity = map(sensorValue, 0, 4095, 0, 100);
+  int luminosity = map(sensorValue, 0, 4095, 100, 0);
   String mensagem = String(luminosity);
   Serial.print("Valor da luminosidade: ");
   Serial.println(mensagem.c_str());
-  MQTT.publish(TOPICO_PUBLISH_2, mensagem.c_str());
+  MQTT.publish(TOPICO_PUBLISH_4, mensagem.c_str());
 
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
@@ -190,11 +185,14 @@ void handleLuminosity() {
   Serial.println(temperature);
   Serial.println(F("°C"));
 
-  //Publicação da umidade e da temperatura
-  dtostrf(humidity, 4, 1, msgBuffer);
+  //Publicação da humidade
+  mensagem = String(humidity);
+  //dtostrf(humidity, 4, 1, msgBuffer);
   MQTT.publish(TOPICO_PUBLISH_3, mensagem.c_str());
 
-  dtostrf(temperature, 4, 1, msgBuffer);
-  MQTT.publish(TOPICO_PUBLISH_4, mensagem.c_str()); 
+  //Publicação da temperatura
+  mensagem = String(temperature);
+  //dtostrf(temperature, 4, 1, msgBuffer);
+  MQTT.publish(TOPICO_PUBLISH_2, mensagem.c_str()); 
 
 }
