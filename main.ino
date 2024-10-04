@@ -29,7 +29,7 @@ char* TOPICO_PUBLISH_4 = const_cast<char*>(default_TOPICO_PUBLISH_4);
 char* ID_MQTT = const_cast<char*>(default_ID_MQTT);
 int D4 = default_D4;
 
-#define DHTTYPE DHT22
+#define DHTTYPE DHT11
 #define DHTPIN  4
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -176,6 +176,7 @@ void handleLuminosity() {
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
 
+  int humi = map(humidity, 0, 200, 0, 100);
   if (isnan(humidity) || isnan(temperature)) {
     Serial.println(F("Falha na leitura do sensor DHT-22"));
   }
